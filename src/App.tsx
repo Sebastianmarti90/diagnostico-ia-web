@@ -1,314 +1,414 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronRight, Check, Zap, Globe, Cpu, BarChart, Send, Shield, Smartphone, Sparkles, BrainCircuit, MessageSquare, X, Loader2, Bot, Tag, Layout, PenTool, Layers, Copy, Monitor, Image as ImageIcon, Menu, Info, AlertCircle, ArrowRight, MapPin, RefreshCw, TrendingUp, DollarSign, FileText, Palette, Settings, Users, Package, Instagram, CreditCard } from 'lucide-react';
+type ChoiceValue = string;
 
-// --- DATA & CONFIGURATION ---
+type QuestionOption = {
+  text: string;
+  value: ChoiceValue;          // ✅ requerido
+  points: number;              // ✅ lo dejo obligatorio para evitar errores
+  isRecommended?: boolean;     // ✅ para tu opción “RECOMENDADO”
+  infoTitle?: string;
+  infoBody?: string;
+};
 
-const QUESTIONS = [
+type Question = {
+  id: number;
+  text: string;
+  subtext?: string;
+  options: QuestionOption[];
+};
+
+type AnswersMap = Record<number, ChoiceValue>;
+
+/* =========================
+   2) REEMPLAZA TU CONST QUESTIONS COMPLETO POR ESTE
+   ========================= */
+
+const QUESTIONS: Question[] = [
   {
     id: 1,
     text: "¿Tienes actualmente página web?",
     options: [
-      { 
-        text: "No, empiezo desde cero", 
+      {
+        text: "No, empiezo desde cero",
+        value: "web_cero",
         points: 1,
         infoTitle: "¿Qué significa: Empiezo desde cero?",
-        infoBody: "No tienes un dominio registrado ni servicio de hosting activo en este momento.\n\nComenzaremos la construcción de tu identidad digital desde los cimientos."
+        infoBody:
+          "No tienes un dominio registrado ni servicio de hosting activo en este momento.\n\nComenzaremos la construcción de tu identidad digital desde los cimientos.",
       },
-      { 
-        text: "Sí, pero muy básica", 
+      {
+        text: "Sí, pero muy básica",
+        value: "web_basica",
         points: 2,
         infoTitle: "¿Qué significa: Muy básica?",
-        infoBody: "Tienes un sitio web funcional pero con un diseño antiguo, poca información o que no se adapta bien a celulares."
+        infoBody:
+          "Tienes un sitio web funcional pero con un diseño antiguo, poca información o que no se adapta bien a celulares.",
       },
-      { 
-        text: "Sí, corporativa estándar", 
+      {
+        text: "Sí, corporativa estándar",
+        value: "web_corporativa",
         points: 3,
         infoTitle: "¿Qué significa: Corporativa estándar?",
-        infoBody: "Cuentas con un sitio profesional que describe tu empresa, pero funciona únicamente como un folleto digital o tarjeta de presentación."
+        infoBody:
+          "Cuentas con un sitio profesional que describe tu empresa, pero funciona únicamente como un folleto digital o tarjeta de presentación.",
       },
-      { 
-        text: "Sí, pero no convierte visitas", 
+      {
+        text: "Sí, pero no convierte visitas",
+        value: "web_no_convierte",
         points: 4,
         infoTitle: "¿Qué significa: No convierte?",
-        infoBody: "Tu página web recibe tráfico (visitas), pero los usuarios abandonan el sitio sin contactarte, dejar sus datos o realizar una compra."
+        infoBody:
+          "Tu página web recibe tráfico (visitas), pero los usuarios abandonan el sitio sin contactarte, dejar sus datos o realizar una compra.",
       },
-    ]
+    ],
   },
   {
     id: 2,
     text: "¿Cuál es tu objetivo principal?",
     options: [
-      { 
-        text: "Solo presencia digital", 
+      {
+        text: "Solo presencia digital",
+        value: "obj_presencia",
         points: 1,
         infoTitle: "¿Qué significa: Solo presencia?",
-        infoBody: "Tu prioridad es existir en internet para que cuando alguien busque tu nombre o empresa en Google, pueda encontrarte y validar tu existencia."
+        infoBody:
+          "Tu prioridad es existir en internet para que cuando alguien busque tu nombre o empresa en Google, pueda encontrarte y validar tu existencia.",
       },
-      { 
-        text: "Posicionamiento profesional", 
+      {
+        text: "Posicionamiento profesional",
+        value: "obj_posicionamiento",
         points: 2,
         infoTitle: "¿Qué significa: Posicionamiento profesional?",
-        infoBody: "Buscas proyectar alta autoridad, credibilidad y destacar frente a tus competidores directos con una imagen premium."
+        infoBody:
+          "Buscas proyectar alta autoridad, credibilidad y destacar frente a tus competidores directos con una imagen premium.",
       },
-      { 
-        text: "Captación de clientes", 
+      {
+        text: "Captación de clientes",
+        value: "obj_clientes",
         points: 3,
         infoTitle: "¿Qué significa: Captación de clientes?",
-        infoBody: "El objetivo principal de la web es ser una herramienta de ventas activa, diseñada específicamente para capturar leads (prospectos) y generar reuniones o ventas."
+        infoBody:
+          "El objetivo principal de la web es ser una herramienta de ventas activa, diseñada específicamente para capturar leads (prospectos) y generar reuniones o ventas.",
       },
-      { 
-        text: "Automatización y escalabilidad", 
+      {
+        text: "Automatización y escalabilidad",
+        value: "obj_automatizacion",
         points: 4,
         infoTitle: "¿Qué significa: Automatización?",
-        infoBody: "Buscas delegar el trabajo manual a la web: calificación de clientes, agendamiento automático, seguimiento por email y conexión con CRM."
+        infoBody:
+          "Buscas delegar el trabajo manual a la web: calificación de clientes, agendamiento automático, seguimiento por email y conexión con CRM.",
       },
-    ]
+    ],
   },
   {
     id: 3,
     text: "¿Ofreces planes o servicios estructurados?",
     options: [
-      { 
-        text: "No, aún estoy definiendo", 
+      {
+        text: "No, aún estoy definiendo",
+        value: "serv_definiendo",
         points: 1,
         infoTitle: "¿Qué significa: Aún definiendo?",
-        infoBody: "Tus servicios son completamente a medida, no tienes precios estandarizados y cada propuesta varía según el cliente."
+        infoBody:
+          "Tus servicios son completamente a medida, no tienes precios estandarizados y cada propuesta varía según el cliente.",
       },
-      { 
-        text: "Sí, pocos servicios", 
+      {
+        text: "Sí, pocos servicios",
+        value: "serv_pocos",
         points: 2,
         infoTitle: "¿Qué significa: Pocos servicios?",
-        infoBody: "Ofreces entre 1 y 3 servicios principales o asesorías que ya tienes claros y estructurados para ofrecer al público."
+        infoBody:
+          "Ofreces entre 1 y 3 servicios principales o asesorías que ya tienes claros y estructurados para ofrecer al público.",
       },
-      { 
-        text: "Sí, planes bien definidos", 
+      {
+        text: "Sí, planes bien definidos",
+        value: "serv_planes",
         points: 3,
         infoTitle: "¿Qué significa: Planes definidos?",
-        infoBody: "Tienes paquetes de servicios claros (ej. Básico, Pro, Premium) con características y promesas de valor establecidas."
+        infoBody:
+          "Tienes paquetes de servicios claros (ej. Básico, Pro, Premium) con características y promesas de valor establecidas.",
       },
-      { 
-        text: "Sí, ecosistema de productos", 
+      {
+        text: "Sí, ecosistema de productos",
+        value: "serv_ecosistema",
         points: 4,
         infoTitle: "¿Qué significa: Ecosistema?",
-        infoBody: "Vendes múltiples servicios, consultorías, cursos o productos digitales que se complementan entre sí (upsells, cross-sells)."
+        infoBody:
+          "Vendes múltiples servicios, consultorías, cursos o productos digitales que se complementan entre sí (upsells, cross-sells).",
       },
-    ]
+    ],
   },
   {
     id: 4,
     text: "¿Quieres integrar automatización o IA?",
     options: [
-      { 
-        text: "No por ahora", 
+      {
+        text: "No por ahora",
+        value: "ia_no",
         points: 1,
         infoTitle: "¿Qué significa: No por ahora?",
-        infoBody: "Prefieres mantener un control manual sobre tus prospectos y ventas, enfocándote en el contacto directo humano."
+        infoBody:
+          "Prefieres mantener un control manual sobre tus prospectos y ventas, enfocándote en el contacto directo humano.",
       },
-      { 
-        text: "Tal vez en el futuro", 
+      {
+        text: "Tal vez en el futuro",
+        value: "ia_futuro",
         points: 2,
         infoTitle: "¿Qué significa: En el futuro?",
-        infoBody: "Te interesa la tecnología, pero prefieres establecer una base sólida y tradicional antes de añadir complejidad técnica."
+        infoBody:
+          "Te interesa la tecnología, pero prefieres establecer una base sólida y tradicional antes de añadir complejidad técnica.",
       },
-      { 
-        text: "Sí, automatización básica", 
+      {
+        text: "Sí, automatización básica",
+        value: "ia_basica",
         points: 3,
         infoTitle: "¿Qué significa: Automatización básica?",
-        infoBody: "Quieres respuestas automáticas inmediatas (correos de bienvenida), notificaciones a tu equipo y registro automático en bases de datos."
+        infoBody:
+          "Quieres respuestas automáticas inmediatas (correos de bienvenida), notificaciones a tu equipo y registro automático en bases de datos.",
       },
-      { 
-        text: "Sí, integración IA avanzada", 
+      {
+        text: "Sí, integración IA avanzada",
+        value: "ia_avanzada",
         points: 4,
         infoTitle: "¿Qué significa: IA Avanzada?",
-        infoBody: "Buscas implementar agentes de IA (chatbots inteligentes), pre-calificación automática de leads y personalización de la experiencia del usuario."
+        infoBody:
+          "Buscas implementar agentes de IA (chatbots inteligentes), pre-calificación automática de leads y personalización de la experiencia del usuario.",
       },
-    ]
+    ],
   },
   {
     id: 5,
     text: "¿Qué nivel de crecimiento proyectas a corto plazo?",
     options: [
-      { 
-        text: "Marca personal emergente", 
+      {
+        text: "Marca personal emergente",
+        value: "crec_emergente",
         points: 1,
         infoTitle: "¿Qué significa: Marca emergente?",
-        infoBody: "Estás dando tus primeros pasos serios en digital y buscas establecer tu nombre como profesional independiente."
+        infoBody:
+          "Estás dando tus primeros pasos serios en digital y buscas establecer tu nombre como profesional independiente.",
       },
-      { 
-        text: "Profesional consolidado", 
+      {
+        text: "Profesional consolidado",
+        value: "crec_consolidado",
         points: 2,
         infoTitle: "¿Qué significa: Profesional consolidado?",
-        infoBody: "Ya tienes una cartera de clientes activa y buscas mejorar tu posicionamiento para cobrar más por tus servicios."
+        infoBody:
+          "Ya tienes una cartera de clientes activa y buscas mejorar tu posicionamiento para cobrar más por tus servicios.",
       },
-      { 
-        text: "Consultor estratégico", 
+      {
+        text: "Consultor estratégico",
+        value: "crec_consultor",
         points: 3,
         infoTitle: "¿Qué significa: Consultor estratégico?",
-        infoBody: "Te posicionas como experto en tu industria, vendes servicios o tickets de alto valor (High Ticket) y necesitas máxima credibilidad."
+        infoBody:
+          "Te posicionas como experto en tu industria, vendes servicios o tickets de alto valor (High Ticket) y necesitas máxima credibilidad.",
       },
-      { 
-        text: "Infraestructura digital masiva", 
+      {
+        text: "Infraestructura digital masiva",
+        value: "crec_masivo",
         points: 4,
         infoTitle: "¿Qué significa: Infraestructura masiva?",
-        infoBody: "Planeas escalar agresivamente usando publicidad pagada, lanzamientos o embudos para atender a cientos o miles de usuarios."
+        infoBody:
+          "Planeas escalar agresivamente usando publicidad pagada, lanzamientos o embudos para atender a cientos o miles de usuarios.",
       },
-    ]
+    ],
   },
   {
     id: 6,
     text: "¿Qué tipo de solución necesitas?",
-    subtext: "Elige la opción que más se parece a tu caso. Puedes abrir '¿Qué significa?' en cada una.",
+    subtext:
+      "Elige la opción que más se parece a tu caso. Puedes abrir '¿Qué significa?' en cada una.",
     options: [
-      { 
-        text: "Web simple (solo información)", 
+      {
+        text: "Web simple (solo información)",
+        value: "sol_simple",
         points: 1,
         infoTitle: "¿Qué significa: Web simple?",
-        infoBody: "Es una página para mostrar quién eres, qué haces y cómo contactarte.\n\nIdeal si no necesitas login, pagos ni automatizaciones.\n\nEjemplo: landing de servicios + botón WhatsApp."
+        infoBody:
+          "Es una página para mostrar quién eres, qué haces y cómo contactarte.\n\nIdeal si no necesitas login, pagos ni automatizaciones.\n\nEjemplo: landing de servicios + botón WhatsApp.",
       },
-      { 
-        text: "Web con formularios y WhatsApp", 
+      {
+        text: "Web con formularios y WhatsApp",
+        value: "sol_form_whatsapp",
         points: 2,
         infoTitle: "¿Qué significa: Web con formularios y WhatsApp?",
-        infoBody: "Incluye formularios que capturan datos (nombre, correo, mensaje) y redirección a WhatsApp.\n\nIdeal para generar leads sin CRM complejo.\n\nEjemplo: “Solicitar cotización” + envío a tu correo/WhatsApp."
+        infoBody:
+          "Incluye formularios que capturan datos (nombre, correo, mensaje) y redirección a WhatsApp.\n\nIdeal para generar leads sin CRM complejo.\n\nEjemplo: “Solicitar cotización” + envío a tu correo/WhatsApp.",
       },
-      { 
-        text: "Web + integraciones (CRM/Email/Analytics)", 
+      {
+        text: "Web + integraciones (CRM/Email/Analytics)",
+        value: "sol_integraciones",
         points: 3,
         infoTitle: "¿Qué significa: Web + integraciones?",
-        infoBody: "Conecta tu web con herramientas para automatizar seguimiento.\n\nIdeal si quieres medir conversiones y nutrir contactos.\n\nEjemplo: formulario → CRM → email automático → reporte."
+        infoBody:
+          "Conecta tu web con herramientas para automatizar seguimiento.\n\nIdeal si quieres medir conversiones y nutrir contactos.\n\nEjemplo: formulario → CRM → email automático → reporte.",
       },
-      { 
-        text: "Infra completa (embudos + automatización + IA)", 
+      {
+        text: "Infra completa (embudos + automatización + IA)",
+        value: "sol_infra_ia",
         points: 4,
         infoTitle: "¿Qué significa: Infra completa?",
-        infoBody: "Estructura avanzada para vender y escalar con procesos automáticos.\n\nIncluye embudos, analítica, integraciones y asistente IA.\n\nEjemplo: lead magnet → emails → agenda → chatbot → dashboard."
+        infoBody:
+          "Estructura avanzada para vender y escalar con procesos automáticos.\n\nIncluye embudos, analítica, integraciones y asistente IA.\n\nEjemplo: lead magnet → emails → agenda → chatbot → dashboard.",
       },
-    ]
+    ],
   },
   {
     id: 7,
     text: "¿Cómo quieres manejar pruebas y cambios?",
-    subtext: "Esto define si habrá entornos separados para probar antes de publicar.",
+    subtext:
+      "Esto define si habrá entornos separados para probar antes de publicar.",
     options: [
-      { 
-        text: "No, publico directo (solo PROD)", 
+      {
+        text: "No, publico directo (solo PROD)",
+        value: "env_prod",
         points: 1,
         infoTitle: "¿Qué significa: Solo PROD?",
-        infoBody: "Todo se cambia directo en la web final.\n\nMás rápido, pero con más riesgo si hay cambios frecuentes.\n\nRecomendado para sitios simples."
+        infoBody:
+          "Todo se cambia directo en la web final.\n\nMás rápido, pero con más riesgo si hay cambios frecuentes.\n\nRecomendado para sitios simples.",
       },
-      { 
-        text: "Sí, DEV + PROD (pruebo antes de publicar)", 
+      {
+        text: "Sí, DEV + PROD (pruebo antes de publicar)",
+        value: "env_dev_prod",
         points: 2,
         infoTitle: "¿Qué significa: DEV + PROD?",
-        infoBody: "DEV es un “borrador” para probar sin afectar la web real.\n\nLuego se publica a PROD cuando está listo.\n\nRecomendado para integraciones o cambios frecuentes."
+        infoBody:
+          "DEV es un “borrador” para probar sin afectar la web real.\n\nLuego se publica a PROD cuando está listo.\n\nRecomendado para integraciones o cambios frecuentes.",
       },
-      { 
-        text: "Sí, DEV + QA + PROD (pruebas formales)", 
+      {
+        text: "Sí, DEV + QA + PROD (pruebas formales)",
+        value: "env_dev_qa_prod",
         points: 3,
         infoTitle: "¿Qué significa: DEV + QA + PROD?",
-        infoBody: "QA es un entorno de pruebas controladas (revisión final).\n\nÚtil cuando hay equipo, procesos, o necesidad de validar.\n\nRecomendado para proyectos medianos/grandes."
+        infoBody:
+          "QA es un entorno de pruebas controladas (revisión final).\n\nÚtil cuando hay equipo, procesos, o necesidad de validar.\n\nRecomendado para proyectos medianos/grandes.",
       },
-      { 
-        text: "Sí, y despliegue continuo (CI/CD)", 
+      {
+        text: "Sí, y despliegue continuo (CI/CD)",
+        value: "env_cicd",
         points: 4,
         infoTitle: "¿Qué significa: CI/CD?",
-        infoBody: "Publicación automatizada por pipeline: menos errores humanos.\n\nIdeal para proyectos con actualizaciones constantes.\n\nRecomendado para infra avanzada/IA."
+        infoBody:
+          "Publicación automatizada por pipeline: menos errores humanos.\n\nIdeal para proyectos con actualizaciones constantes.\n\nRecomendado para infra avanzada/IA.",
       },
-    ]
+    ],
   },
   {
     id: 8,
     text: "¿Qué nivel de acompañamiento estratégico necesitas?",
-    subtext: "Este acompañamiento es adicional al plan base contratado. No modifica el alcance técnico inicial.",
+    subtext:
+      "Este acompañamiento es adicional al plan base contratado. No modifica el alcance técnico inicial.",
     options: [
-      { 
-        text: "No, solo entrega final", 
+      {
+        text: "No, solo entrega final",
+        value: "acom_entrega",
         points: 1,
         infoTitle: "¿ Qué incluye: Entrega final ?",
-        infoBody: "Se entrega la web completamente funcional según el plan contratado.\nIncluye:\n\n• Publicación en producción\n• Validación técnica final\n• Entrega de accesos\n\nNo incluye soporte posterior.\nNo es acumulable.\nCualquier mejora posterior se cotiza como servicio independiente."
+        infoBody:
+          "Se entrega la web completamente funcional según el plan contratado.\nIncluye:\n\n• Publicación en producción\n• Validación técnica final\n• Entrega de accesos\n\nNo incluye soporte posterior.\nNo es acumulable.\nCualquier mejora posterior se cotiza como servicio independiente.",
       },
-      { 
-        text: "Sí, 1 sesión de onboarding", 
+      {
+        text: "Sí, 1 sesión de onboarding",
+        value: "acom_onboarding",
         points: 2,
         infoTitle: "¿ Qué incluye: 1 sesión de onboarding ?",
-        infoBody: "Incluye una sesión estratégica posterior al lanzamiento.\nIncluye:\n\n• Cómo editar textos e imágenes\n• Gestión básica de formularios\n• Resolución de dudas operativas\n\nDuración aproximada: 45–60 minutos.\nNo cambia el plan contratado.\nNo es acumulable.\nNo incluye rediseños ni nuevas funcionalidades."
+        infoBody:
+          "Incluye una sesión estratégica posterior al lanzamiento.\nIncluye:\n\n• Cómo editar textos e imágenes\n• Gestión básica de formularios\n• Resolución de dudas operativas\n\nDuración aproximada: 45–60 minutos.\nNo cambia el plan contratado.\nNo es acumulable.\nNo incluye rediseños ni nuevas funcionalidades.",
       },
-      { 
-        text: "Sí, 2–3 sesiones + revisión estratégica", 
+      {
+        text: "Sí, 2–3 sesiones + revisión estratégica",
+        value: "acom_sesiones",
         points: 3,
         infoTitle: "¿ Qué incluye: 2–3 sesiones estratégicas ?",
-        infoBody: "Incluye acompañamiento posterior al lanzamiento.\nIncluye:\n\n• Optimización inicial de conversión\n• Ajustes estratégicos menores\n• Revisión de métricas básicas\n• Resolución de dudas operativas\n\nNo cambia el plan contratado.\nNo es acumulable.\nNo contempla ampliación de alcance ni nuevas secciones."
+        infoBody:
+          "Incluye acompañamiento posterior al lanzamiento.\nIncluye:\n\n• Optimización inicial de conversión\n• Ajustes estratégicos menores\n• Revisión de métricas básicas\n• Resolución de dudas operativas\n\nNo cambia el plan contratado.\nNo es acumulable.\nNo contempla ampliación de alcance ni nuevas secciones.",
       },
-      { 
-        text: "⭐ Sí, soporte mensual (partner)", 
+      {
+        text: "⭐ Sí, soporte mensual (partner)",
+        value: "acom_partner",
         points: 4,
         isRecommended: true,
         infoTitle: "¿ Qué incluye: Soporte mensual (partner) ?",
-        infoBody: "Servicio mensual de continuidad estratégica.\nIncluye por mes:\n\n• Mejoras evolutivas menores\n• Optimización de conversión\n• Ajustes estratégicos\n• Soporte prioritario\n• Revisión mensual de rendimiento\n\nNo cambia el plan base.\nNo es acumulable entre meses.\nNo incluye rediseño completo ni desarrollo de nuevas funcionalidades estructurales."
+        infoBody:
+          "Servicio mensual de continuidad estratégica.\nIncluye por mes:\n\n• Mejoras evolutivas menores\n• Optimización de conversión\n• Ajustes estratégicos\n• Soporte prioritario\n• Revisión mensual de rendimiento\n\nNo cambia el plan base.\nNo es acumulable entre meses.\nNo incluye rediseño completo ni desarrollo de nuevas funcionalidades estructurales.",
       },
-    ]
+    ],
   },
   {
     id: 9,
     text: "¿Qué tan documentado lo necesitas?",
     options: [
-      { 
-        text: "Básica (accesos + guía simple)", 
+      {
+        text: "Básica (accesos + guía simple)",
+        value: "doc_basica",
         points: 1,
         infoTitle: "¿Qué significa: Básica?",
-        infoBody: "Accesos + pasos básicos para editar."
+        infoBody: "Accesos + pasos básicos para editar.",
       },
-      { 
-        text: "Manual de administración", 
+      {
+        text: "Manual de administración",
+        value: "doc_manual",
         points: 2,
         infoTitle: "¿Qué significa: Manual admin?",
-        infoBody: "Guía completa para gestionar contenido, formularios, SEO básico."
+        infoBody: "Guía completa para gestionar contenido, formularios, SEO básico.",
       },
-      { 
-        text: "Documentación técnica + handoff", 
+      {
+        text: "Documentación técnica + handoff",
+        value: "doc_tecnica",
         points: 3,
         infoTitle: "¿Qué significa: Técnica + handoff?",
-        infoBody: "Integraciones, flujos, accesos, configuración, traspaso ordenado."
+        infoBody: "Integraciones, flujos, accesos, configuración, traspaso ordenado.",
       },
-      { 
-        text: "Doc completa + diagramas + runbook", 
+      {
+        text: "Doc completa + diagramas + runbook",
+        value: "doc_runbook",
         points: 4,
         infoTitle: "¿Qué significa: Completa + runbook?",
-        infoBody: "Diagramas + operación + contingencias + procedimiento de mantenimiento."
+        infoBody: "Diagramas + operación + contingencias + procedimiento de mantenimiento.",
       },
-    ]
+    ],
   },
   {
     id: 10,
     text: "¿Tienes línea gráfica / branding?",
     options: [
-      { 
-        text: "No tengo nada aún", 
+      {
+        text: "No tengo nada aún",
+        value: "brand_nada",
         points: 1,
         infoTitle: "¿Qué significa: No tengo nada?",
-        infoBody: "No cuentas con un logo definido ni una paleta de colores. Trabajaremos con una estética limpia desde cero."
+        infoBody:
+          "No cuentas con un logo definido ni una paleta de colores. Trabajaremos con una estética limpia desde cero.",
       },
-      { 
-        text: "Tengo logo y colores", 
+      {
+        text: "Tengo logo y colores",
+        value: "brand_logo",
         points: 2,
         infoTitle: "¿Qué significa: Logo y colores?",
-        infoBody: "Cuentas con un logotipo y colores corporativos básicos que usaremos como punto de partida para el diseño."
+        infoBody:
+          "Cuentas con un logotipo y colores corporativos básicos que usaremos como punto de partida para el diseño.",
       },
-      { 
-        text: "Tengo brandbook básico", 
+      {
+        text: "Tengo brandbook básico",
+        value: "brand_basico",
         points: 3,
         infoTitle: "¿Qué significa: Brandbook básico?",
-        infoBody: "Posees un manual de marca con usos correctos del logo, tipografías corporativas y paleta cromática definida."
+        infoBody:
+          "Posees un manual de marca con usos correctos del logo, tipografías corporativas y paleta cromática definida.",
       },
-      { 
-        text: "Tengo brandbook completo", 
+      {
+        text: "Tengo brandbook completo",
+        value: "brand_completo",
         points: 4,
         infoTitle: "¿Qué significa: Brandbook completo?",
-        infoBody: "Cuentas con lineamientos estrictos, manual de identidad extenso, tono de voz y recursos gráficos avanzados."
+        infoBody:
+          "Cuentas con lineamientos estrictos, manual de identidad extenso, tono de voz y recursos gráficos avanzados.",
       },
-    ]
-  }
+    ],
+  },
 ];
 
 // --- CLP FORMATTER ---
@@ -524,7 +624,9 @@ export default function App() {
   const [view, setView] = useState('hero'); 
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
-  const [answers, setAnswers] = useState([]); 
+  const [answers, setAnswers] = useState<{ question: string; answer: string }[]>(
+    []
+  );
   const [recommendedPlan, setRecommendedPlan] = useState(null);
   
   // AI State
@@ -805,7 +907,7 @@ function QuizSection({ question, currentStep, totalSteps, onAnswer }) {
                  </motion.div>
               )}
               <button
-                onClick={() => onAnswer(option.points, option.text)}
+                onClick={() => onAnswer(option.points ?? 0, option.text)}
                 className={`w-full text-left p-6 rounded-2xl border bg-slate-800/30 transition-all duration-300 group flex items-center justify-between ${
                   isRecommended
                     ? 'border-[#D4AF37]/50 hover:bg-[#D4AF37]/10 hover:border-[#D4AF37] shadow-[0_0_15px_rgba(212,175,55,0.15)]'
