@@ -68,6 +68,8 @@ type Plan = {
   price: PlanPrice;
   features: string[];
   icon: React.ReactNode;
+  paymentLink: string;
+
 };
 
 type ViewState = "hero" | "quiz" | "analyzing" | "result";
@@ -439,51 +441,55 @@ const formatCLP = (n: number): string =>
     maximumFractionDigits: 0,
   }).format(n);
 
-const PLANS: Record<"BASE" | "CORPORATIVO" | "INFRAESTRUCTURA" | "IA", Plan> = {
-  BASE: {
-    name: "PLAN BASE 🥉",
-    min: 0,
-    max: 16,
-    description:
-      "Landing Profesional. Ideal para comenzar tu presencia digital con claridad y estética.",
-    price: { normal: 490000, offer: 390000, discountLabel: "-20%" },
-    features: [
-      "Dominio + Hosting (12+ meses)",
-      "Diseño Estratégico",
-      "Estructura Básica",
-      "Certificado SSL",
-    ],
-    icon: <Globe className="w-12 h-12 text-[var(--accent)]" />,
-  },
-  CORPORATIVO: {
-    name: "PLAN CORPORATIVO 🥈",
-    min: 17,
-    max: 24,
-    description:
-      "Sitio de Autoridad. Ideal para posicionamiento profesional y validación de marca.",
-    price: { normal: 1090000, offer: 890000, discountLabel: "-18%" },
-    features: ["Arquitectura Clara", "Estructura de Servicios", "Captación Inicial", "Blog / Noticias"],
-    icon: <Shield className="w-12 h-12 text-[var(--accent)]" />,
-  },
-  INFRAESTRUCTURA: {
-    name: "PLAN INFRAESTRUCTURA 🥇",
-    min: 25,
-    max: 32,
-    description: "Web Avanzada. Ideal para crecimiento estratégico y embudos de venta.",
-    price: { normal: 1790000, offer: 1490000, discountLabel: "-17%" },
-    features: ["Automatización Básica", "Arquitectura de Conversión", "Integración CRM", "Analítica Avanzada"],
-    icon: <Cpu className="w-12 h-12 text-[var(--accent)]" />,
-  },
-  IA: {
-    name: "PLAN IA INTEGRADA 🏆",
-    min: 33,
-    max: 40,
-    description: "Web Inteligente. Infraestructura digital completa con IA y escalabilidad total.",
-    price: { normal: 2990000, offer: 2490000, discountLabel: "-17%" },
-    features: ["Integración IA Avanzada", "Chatbots Entrenados", "Automatización Total", "Dashboard Personalizado"],
-    icon: <BrainCircuit className="w-12 h-12 text-[var(--accent)]" />,
-  },
-};
+  const PLANS: Record<"BASE" | "CORPORATIVO" | "INFRAESTRUCTURA" | "IA", Plan> = {
+    BASE: {
+      name: "PLAN BASE 🥉",
+      min: 0,
+      max: 16,
+      description:
+        "Landing Profesional. Ideal para comenzar tu presencia digital con claridad y estética.",
+      price: { normal: 490000, offer: 390000, discountLabel: "-20%" },
+      features: [
+        "Dominio + Hosting (12+ meses)",
+        "Diseño Estratégico",
+        "Estructura Básica",
+        "Certificado SSL",
+      ],
+      icon: <Globe className="w-12 h-12 text-[var(--accent)]" />,
+      paymentLink: "https://mpago.la/1oAkWV2",
+    },
+    CORPORATIVO: {
+      name: "PLAN CORPORATIVO 🥈",
+      min: 17,
+      max: 24,
+      description:
+        "Sitio de Autoridad. Ideal para posicionamiento profesional y validación de marca.",
+      price: { normal: 1090000, offer: 890000, discountLabel: "-18%" },
+      features: ["Arquitectura Clara", "Estructura de Servicios", "Captación Inicial", "Blog / Noticias"],
+      icon: <Shield className="w-12 h-12 text-[var(--accent)]" />,
+      paymentLink: "https://mpago.la/2bfocPG",
+    },
+    INFRAESTRUCTURA: {
+      name: "PLAN ADVANCED 🥇",
+      min: 25,
+      max: 32,
+      description: "Web Avanzada. Ideal para crecimiento estratégico y embudos de venta.",
+      price: { normal: 1790000, offer: 1490000, discountLabel: "-17%" },
+      features: ["Automatización Básica", "Arquitectura de Conversión", "Integración CRM", "Analítica Avanzada"],
+      icon: <Cpu className="w-12 h-12 text-[var(--accent)]" />,
+      paymentLink: "https://mpago.la/2BerpxP",
+    },
+    IA: {
+      name: "PLAN IA INTEGRADA 🏆",
+      min: 33,
+      max: 40,
+      description: "Web Inteligente. Infraestructura digital completa con IA y escalabilidad total.",
+      price: { normal: 2990000, offer: 2490000, discountLabel: "-17%" },
+      features: ["Integración IA Avanzada", "Chatbots Entrenados", "Automatización Total", "Dashboard Personalizado"],
+      icon: <BrainCircuit className="w-12 h-12 text-[var(--accent)]" />,
+      paymentLink: "https://mpago.la/2cDuiH4",
+    },
+  };
 
 const TIMELINE_STEPS: string[] = [
   "Diagnóstico IA completado",
@@ -1322,7 +1328,9 @@ Tengo algunas dudas y me gustaría más información.`;
 
           <div className="flex flex-col sm:flex-row gap-4 mb-6">
             <a
-              href="#"
+              href={plan.paymentLink}
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex-1 relative group overflow-hidden bg-gradient-to-r from-[#009EE3] to-[#007eb5] text-white font-bold py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(0,158,227,0.4)] hover:shadow-[0_0_30px_rgba(0,158,227,0.6)] hover:scale-[1.02] flex items-center justify-center gap-2"
             >
               <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
