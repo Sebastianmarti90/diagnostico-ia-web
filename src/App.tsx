@@ -453,7 +453,7 @@ const PLANS: Record<"BASE" | "CORPORATIVO" | "INFRAESTRUCTURA" | "IA", Plan> = {
       "Estructura Básica",
       "Certificado SSL",
     ],
-    icon: <Globe className="w-12 h-12 text-cyan-400" />,
+    icon: <Globe className="w-12 h-12 text-[var(--accent)]" />,
   },
   CORPORATIVO: {
     name: "PLAN CORPORATIVO 🥈",
@@ -463,7 +463,7 @@ const PLANS: Record<"BASE" | "CORPORATIVO" | "INFRAESTRUCTURA" | "IA", Plan> = {
       "Sitio de Autoridad. Ideal para posicionamiento profesional y validación de marca.",
     price: { normal: 1090000, offer: 890000, discountLabel: "-18%" },
     features: ["Arquitectura Clara", "Estructura de Servicios", "Captación Inicial", "Blog / Noticias"],
-    icon: <Shield className="w-12 h-12 text-cyan-400" />,
+    icon: <Shield className="w-12 h-12 text-[var(--accent)]" />,
   },
   INFRAESTRUCTURA: {
     name: "PLAN INFRAESTRUCTURA 🥇",
@@ -472,7 +472,7 @@ const PLANS: Record<"BASE" | "CORPORATIVO" | "INFRAESTRUCTURA" | "IA", Plan> = {
     description: "Web Avanzada. Ideal para crecimiento estratégico y embudos de venta.",
     price: { normal: 1790000, offer: 1490000, discountLabel: "-17%" },
     features: ["Automatización Básica", "Arquitectura de Conversión", "Integración CRM", "Analítica Avanzada"],
-    icon: <Cpu className="w-12 h-12 text-cyan-400" />,
+    icon: <Cpu className="w-12 h-12 text-[var(--accent)]" />,
   },
   IA: {
     name: "PLAN IA INTEGRADA 🏆",
@@ -481,7 +481,7 @@ const PLANS: Record<"BASE" | "CORPORATIVO" | "INFRAESTRUCTURA" | "IA", Plan> = {
     description: "Web Inteligente. Infraestructura digital completa con IA y escalabilidad total.",
     price: { normal: 2990000, offer: 2490000, discountLabel: "-17%" },
     features: ["Integración IA Avanzada", "Chatbots Entrenados", "Automatización Total", "Dashboard Personalizado"],
-    icon: <BrainCircuit className="w-12 h-12 text-cyan-400" />,
+    icon: <BrainCircuit className="w-12 h-12 text-[var(--accent)]" />,
   },
 };
 
@@ -767,7 +767,7 @@ Formato de respuesta (JSON puro sin markdown):
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 font-sans selection:bg-cyan-500 selection:text-white overflow-x-hidden relative">
+    <div className="min-h-screen bg-[var(--bg)] text-[var(--text)] font-sans selection:bg-[var(--accent)] selection:text-white overflow-x-hidden relative">
       {/* Background Ambience */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
         <motion.div
@@ -786,7 +786,7 @@ Formato de respuesta (JSON puro sin markdown):
           className="absolute inset-0 z-0 opacity-[0.07]"
           style={{
             backgroundImage:
-              "linear-gradient(to right, #06b6d4 1px, transparent 1px), linear-gradient(to bottom, #06b6d4 1px, transparent 1px)",
+  "linear-gradient(to right, var(--accent) 1px, transparent 1px), linear-gradient(to bottom, var(--accent) 1px, transparent 1px)",
             backgroundSize: "64px 64px",
           }}
         />
@@ -806,7 +806,7 @@ Formato de respuesta (JSON puro sin markdown):
         />
 
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150" />
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/50 via-transparent to-slate-950/80" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[var(--bg)]/60 via-transparent to-[var(--bg)]/90" />
       </div>
 
       <div className="relative z-10 container mx-auto px-4 py-8 min-h-screen flex flex-col items-center justify-center">
@@ -862,7 +862,7 @@ function HeroSection({ onStart }: { onStart: () => void }) {
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 0.2 }}
-        className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-cyan-950/30 border border-cyan-500/30 text-cyan-400 text-sm font-medium mb-8 backdrop-blur-md shadow-[0_0_15px_rgba(6,182,212,0.1)]"
+        className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[var(--accent-bg)] border border-[var(--accent-border)] text-[var(--accent)] text-sm font-medium mb-8 backdrop-blur-md shadow-[0_0_15px_rgba(6,182,212,0.1)]"
       >
         <Sparkles size={14} className="animate-pulse" /> Inteligencia Artificial
         Generativa Integrada
